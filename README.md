@@ -1,71 +1,53 @@
-# 🛠️ Node.js + Express Backend Template
+# 📱 SocialApp - Simple Full Stack Social Media Application
 
-A modular and secure RESTful API backend built with **Node.js**, **Express**, and **MongoDB**, following **MVC architecture** with clear separation of concerns and production-ready configurations.
+A simple full-stack social media web application built with **Node.js**, **Express**, **MongoDB**, and vanilla **HTML/JS**.  
+Users can register, login, and perform basic post operations: create, read, update, delete — all protected by **JWT authentication**.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-backend-template/
-├── config/             # DB connection & global config
-│   ├── config.js
-│   └── db.js
-├── controllers/        # Business logic
-│   └── userController.js
-├── logs/               # Winston log files
-│   ├── combined.log
-│   ├── debug.log
-│   └── error.log
-├── middlewares/        # Custom middleware (e.g. auth, error handler)
-│   ├── authMiddleware.js
-│   └── errorHandler.js
+nodejs-backend-finalproject/
+├── config/             # App config and MongoDB connection
+├── controllers/        # Business logic for users & posts
+├── middlewares/        # Authentication & error handling
 ├── models/             # Mongoose schemas
-│   └── user.js
-├── routes/             # API route definitions
-│   └── user.routes.js
-├── utils/              # Utility helpers
-│   ├── logger.js
-│   ├── passwordUtils.js
-│   └── tokenUtils.js
-├── .env
-├── .gitignore
-├── app.js              # Express app setup
-├── server.js           # Entry point and app bootstrap
-├── package.json
-├── package-lock.json
+├── routes/             # Express API routes
+├── public/             # Static frontend (HTML + JS)
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   ├── post.html
+│   └── js/
+├── utils/              # Helper functions (logger, token, password)
+├── Dockerfile          # Docker support
+├── docker-compose.yml  # Docker Compose config
+├── app.js              # Express app definition
 └── README.md
 ```
 
 ---
 
-## 🚀 Features
+## 🔐 Features
 
-- ✅ MVC folder structure
-- ✅ MongoDB with Mongoose
-- ✅ JWT authentication & token verification
-- ✅ Secure headers with Helmet
-- ✅ CORS support
-- ✅ Logging with Winston & Morgan
-- ✅ Custom error handling with centralized middleware
-- ✅ Auto reload with Nodemon in development
-- ✅ Modular utils for password & token handling
-
----
-
-## 🧩 Requirements
-
-- Node.js >= 14
-- MongoDB (local or Atlas)
-- npm or yarn
+- JWT-based login & authentication
+- User registration and secure password hashing
+- Create, read, update, delete posts (CRUD)
+- Post pagination on frontend
+- Protected routes (`/index`, `/post`) with token validation
+- Frontend built with HTML + native JS + `localStorage` for token
+- Custom error classes and centralized error handling
+- Modular and maintainable backend (MVC style)
+- Docker-ready deployment
 
 ---
 
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/anhkhoa1597/nodejs-backend-template.git
-cd nodejs-backend-template
+git clone <your-repo-url>
+cd nodejs-backend-finalproject
 npm install
 ```
 
@@ -73,129 +55,94 @@ npm install
 
 ## ⚙️ Configuration
 
-Create a `.env` file in the root with the following:
+Create a `.env` file:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/myapp
-FRONTEND_URL=http://localhost:3000
-NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/socialapp
 JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=1h
+FRONTEND_URL=http://localhost:5000
+NODE_ENV=development
+```
+
+---
+
+## 🚀 Running the App
+
+```bash
+npm run dev    # dev mode with nodemon
+```
+
+Open in browser: `http://localhost:5000`
+
+---
+
+## 🖥 Frontend Pages
+
+| Page         | Description                            |
+|--------------|----------------------------------------|
+| `/login`     | Login form                             |
+| `/register`  | User registration                      |
+| `/index`     | Dashboard, shows posts, needs login    |
+| `/post`      | Create/edit/delete post, needs login   |
+
+---
+
+## 📡 API Overview
+
+### `/users`
+- `POST /register` – Register new user
+- `POST /login` – Authenticate and return token
+- `GET /me` – Get info of current user (requires token)
+- `PUT /update-password` – Change password
+- `DELETE /:id` – Delete user
+
+### `/posts`
+- `GET /` – Get all posts by current user
+- `POST /post` – Create a new post
+- `PUT /:postId` – Update a post
+- `DELETE /:postId` – Delete a post
+
+All `/posts` routes require valid JWT token in `Authorization` header.
+
+---
+
+## 🧪 Token Auth Flow
+
+- On login/register → receive token → stored in `localStorage`
+- All protected routes checked by middleware `authenticateToken`
+- Frontend uses `fetch(..., { headers: { Authorization: 'Bearer <token>' } })`
+
+---
+
+## 📝 Sample `.env`
+
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/socialapp
+JWT_SECRET=secret123
 JWT_EXPIRES_IN=1h
 ```
 
 ---
 
-## 🧪 Running the Server
+## 🐳 Docker
+
+You can build and run with Docker:
 
 ```bash
-npm run dev   # uses nodemon
+docker-compose up --build
 ```
-
-or
-
-```bash
-node server.js
-```
-
-Server runs at: `http://localhost:5000`
-
----
-
-## 📡 API Endpoints
-
-### Base URL: `/users`
-
-| Method | Endpoint           | Description                     | Auth Required |
-| ------ | ------------------ | ------------------------------- | ------------- |
-| GET    | `/`                | Get all users                   | No            |
-| GET    | `/:id`             | Get user by ID                  | No            |
-| POST   | `/register`        | Register a new user             | No            |
-| POST   | `/login`           | Login with username/password    | No            |
-| POST   | `/logout`          | Log out a user (optional logic) | No            |
-| PUT    | `/update-password` | Update user password            | ✅ Yes        |
-| DELETE | `/:id`             | Delete a user by ID             | Depends       |
-
----
-
-## 🐞 Error Handling
-
-All errors are handled by a centralized middleware in:
-`middlewares/errorHandler.js`
-
-It supports:
-
-- Custom errors (`ValidationError`, `UnauthorizedError`, etc.)
-- Token-related errors
-- Auto logging of stack traces
-
----
-
-## 📝 Logging
-
-Logs are written using `winston` to:
-
-- `logs/combined.log`
-- `logs/error.log`
-- `logs/debug.log`
-
-Morgan is used for HTTP request logging, integrated into Winston in production.
-
----
-
-## 📤 Deployment
-
-To deploy:
-
-1. Set environment variables in `.env`
-2. Use a platform like **Render**, **Railway**, or **Code Engine**
-3. Run in production mode:
-
-```bash
-NODE_ENV=production npm start
-```
-
----
-
-## 🛠 Starting a New Project From Template
-
-If you're cloning this template to start a new project, follow these steps:
-
-### 1. Clone the template
-
-```bash
-git clone https://github.com/anhkhoa1597/nodejs-backend-template.git my-new-project
-cd my-new-project
-```
-
-### 2. Rename your project
-
-- Change the folder name (`my-new-project`)
-- Edit the `"name"` field in `package.json`
-- Update the `README.md` title if needed
-
-### 3. Remove existing Git history
-
-```bash
-rm -rf .git
-git init
-git remote add origin https://github.com/your-username/my-new-project.git
-git add .
-git commit -m "🎉 Initial commit from backend template"
-git push -u origin main
-```
-
-Now you have a fresh, customized backend ready to go 🚀
 
 ---
 
 ## 📚 License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
-## 🙌 Credits
+## 🙌 Author
 
-Template by Khoa Dang Anh.  
-Built with care for real-world scalable backend development.
+Built by Khoa Dang Anh — final project for full stack backend practice.
