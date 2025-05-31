@@ -1,11 +1,20 @@
 import express from "express";
 import userRoutes from "./routes/user.routes.js";
+import postRoutes from "./routes/post.routes.js";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { errorHandler, NotFoundError } from "./middlewares/errorHandler.js";
 import logger from "./utils/logger.js";
 import config from "./config/config.js";
+import authenticateToken, {
+  requireAuth,
+} from "./middlewares/authMiddleware.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const { nodeEnv, frontendUrl } = config;
@@ -36,13 +45,27 @@ if (nodeEnv === "development") {
 }
 // endregion
 
+app.use(express.static(path.join(__dirname, "public")));
+
 // region 📂 Routes
 app.use("/users", userRoutes); // Import user routes
-// Basic route
-app.get("/", (req, res) => {
-  logger.info("Root route accessed");
-  res.json({ message: "Welcome to the backend template!" });
-});
+app.use("/posts", postRoutes); // Import post routes
+// HTML route
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+);
+app.get("/register", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "register.html"))
+);
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "login.html"))
+);
+app.get("/post", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "post.html"))
+);
+app.get("/index", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+);
 // endregion
 
 // 404 handler

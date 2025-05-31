@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
+import config from "./config.js";
 
 export const connectDB = async () => {
-  const mongoUri =
-    process.env.MONGO_URI || "mongodb://localhost:27017/backend-template";
   try {
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(config.mongoUri, { dbName: config.dbName });
     logger.info("MongoDB connected");
   } catch (err) {
     logger.error("MongoDB connection error:", { stack: err.stack });

@@ -7,16 +7,20 @@ import {
   updatePassword,
   loginUser,
   logoutUser,
+  getMe,
 } from "../controllers/userController.js";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
+import authenticateToken from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 // GET /users - Get all users
 router.get("/", getAllUsers);
 
+// Get /users/me - Get information of user
+router.get("/me", authenticateToken, getMe);
+
 // GET /users/:id - Get user by ID
-router.get("/:id", getUserById);
+router.get("/:userId", getUserById);
 
 // POST /users/register - Create a new user
 router.post("/register", register);
@@ -31,6 +35,6 @@ router.post("/logout", logoutUser);
 router.put("/update-password", authenticateToken, updatePassword);
 
 // DELETE /users/:id - Delete user by ID
-router.delete("/:id", deleteUser);
+router.delete("/:userId", deleteUser);
 
 export default router;
